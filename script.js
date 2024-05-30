@@ -33,7 +33,7 @@ const account4 = {
   pin: 4444,
 };
 
-// const accounts = [account1, account2, account3, account4];
+const accounts = [account1, account2, account3, account4];
 
 // Elements
 const labelWelcome = document.querySelector(".welcome");
@@ -95,8 +95,6 @@ displayMovements(account1.movements);
 
 // computing usernames
 
-const accounts = [account1, account2, account3, account4];
-
 const createUsernames = function(acc){
   acc.forEach((accInfo) => {
     accInfo.username = accInfo.owner.toLowerCase().split(" ").map((mov)=>mov[0]).join(""); 
@@ -116,3 +114,15 @@ const calcDisplayBalance = function(movements){
 
 calcDisplayBalance(account2.movements)
 
+const calcDisplaySummary = function(movements){
+  const incomes = movements.filter((mov)=>mov>0).reduce((acc, curr)=> acc + curr, 0); 
+  labelSumIn.textContent = `${incomes}€`; 
+  const investments = movements.filter(mov => mov < 0).reduce((acc,curr)=> acc + curr, 0); 
+  labelSumOut.textContent = `${Math.abs(investments)}€`; 
+
+  const interest = movements.filter(mov=> mov>0).map(mov => mov*0.012).filter(mov => mov>=1).reduce((acc, curr) => acc + curr, 0); 
+  console.log(interest);
+  labelSumInterest.textContent = `${interest}€`
+}
+
+calcDisplaySummary(account1.movements)
