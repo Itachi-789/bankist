@@ -75,9 +75,9 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 ////////////////////////////////////////////////
 
-const displayMovements = function (movements) {
+const displayMovements = function (acc) {
   containerMovements.innerHTML = "";
-  movements.forEach(function (mov, i) {
+  acc.movements.forEach(function (mov, i) {
     const type = mov > 0 ? "deposit" : "withdrawal";
     const html = `
     <div class="movements__row">
@@ -91,38 +91,99 @@ const displayMovements = function (movements) {
   });
 };
 
-displayMovements(account1.movements);
-
 // computing usernames
 
-const createUsernames = function(acc){
+const createUsernames = function (acc) {
   acc.forEach((accInfo) => {
-    accInfo.username = accInfo.owner.toLowerCase().split(" ").map((mov)=>mov[0]).join(""); 
-  })
-}
+    accInfo.username = accInfo.owner
+      .toLowerCase()
+      .split(" ")
+      .map((mov) => mov[0])
+      .join("");
+  });
+};
 
-createUsernames(accounts)
+createUsernames(accounts);
 console.log(accounts);
-
 
 // calculating total balance
 
-const calcDisplayBalance = function(movements){
-  const balance = movements.reduce((acc, curr, i)=> acc+curr, 0)
-  labelBalance.textContent = balance + " €"; 
-}
+const calcDisplayBalance = function (acc) {
+  acc.balance = acc.movements.reduce((acc, curr, i) => acc + curr, 0);
+  labelBalance.textContent = acc.balance + " €";
+};
 
-calcDisplayBalance(account2.movements)
+const calcDisplaySummary = function (acc) {
+  const incomes = acc.movements
+    .filter((mov) => mov > 0)
+    .reduce((acc, curr) => acc + curr, 0);
+  labelSumIn.textContent = `${incomes}€`;
+  const investments = acc.movements
+    .filter((mov) => mov < 0)
+    .reduce((acc, curr) => acc + curr, 0);
+  labelSumOut.textContent = `${Math.abs(investments)}€`;
 
-const calcDisplaySummary = function(movements){
-  const incomes = movements.filter((mov)=>mov>0).reduce((acc, curr)=> acc + curr, 0); 
-  labelSumIn.textContent = `${incomes}€`; 
-  const investments = movements.filter(mov => mov < 0).reduce((acc,curr)=> acc + curr, 0); 
-  labelSumOut.textContent = `${Math.abs(investments)}€`; 
-
-  const interest = movements.filter(mov=> mov>0).map(mov => mov*0.012).filter(mov => mov>=1).reduce((acc, curr) => acc + curr, 0); 
+  const interest = acc.movements
+    .filter((mov) => mov > 0)
+    .map((mov) => mov * (acc.interestRate / 100))
+    .filter((mov) => mov >= 1)
+    .reduce((acc, curr) => acc + curr, 0);
   console.log(interest);
-  labelSumInterest.textContent = `${interest}€`
-}
+  labelSumInterest.textContent = `${interest}€`;
+};
 
-calcDisplaySummary(account1.movements)
+const updateUI = function(acc){
+  displayMovements(acc);
+  calcDisplayBalance(acc);
+  calcDisplaySummary(acc);
+}
+// Event handlers
+let currentAccount;
+
+btnLogin.addEventListener("click", function (event) {
+  event.preventDefault();
+  currentAccount = accounts.find(
+    (acc) => acc.username === inputLoginUsername.value
+  );
+  // console.log(currentAccount);
+
+  if (currentAccount.pin === Number(inputLoginPin.value)) {
+    labelWelcome.textContent = `Welcome Back, ${
+      currentAccount.owner.split(" ")[0]
+    }`;
+    containerApp.style.opacity = 100;
+
+    // clearing the fields
+    inputLoginUsername.value = "";
+    inputLoginPin.value = "";
+    inputLoginPin.blur();
+
+    // displaying content
+    updateUI(currentAccount); 
+  }
+});
+
+btnTransfer.addEventListener("click", function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAccount = accounts.find(
+    (acc) => acc.username === inputTransferTo.value
+  );
+
+  if (
+    amount > 0 &&
+    currentAccount.balance >= amount &&
+    receiverAccount &&
+    receiverAccount?.username !== currentAccount.username
+  ) {
+    console.log(currentAccount);
+
+    currentAccount.movements.push(-amount); 
+    receiverAccount.movements.push(amount); 
+    console.log(receiverAccount.movements); 
+
+    updateUI(currentAccount); 
+    inputTransferTo.value=""; 
+    inputTransferAmount.value="";   
+  }
+});
