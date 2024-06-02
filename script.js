@@ -118,6 +118,7 @@ const calcDisplaySummary = function (acc) {
     .filter((mov) => mov > 0)
     .reduce((acc, curr) => acc + curr, 0);
   labelSumIn.textContent = `${incomes}€`;
+
   const investments = acc.movements
     .filter((mov) => mov < 0)
     .reduce((acc, curr) => acc + curr, 0);
@@ -128,7 +129,7 @@ const calcDisplaySummary = function (acc) {
     .map((mov) => mov * (acc.interestRate / 100))
     .filter((mov) => mov >= 1)
     .reduce((acc, curr) => acc + curr, 0);
-  console.log(interest);
+  // console.log(interest);
   labelSumInterest.textContent = `${interest}€`;
 };
 
@@ -209,3 +210,4 @@ btnLoan.addEventListener("click", function(e){
   }
   inputLoanAmount.value=""; 
 }) 
+
