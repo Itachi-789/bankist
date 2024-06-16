@@ -24,7 +24,7 @@ To get started with Bankist, simply clone this repository and open the `index.ht
 
 Happy coding and learning!
 
-##Deployed Link:- 
+## Deployed Link:- 
 https://banker-12.netlify.app/
 ---
 
